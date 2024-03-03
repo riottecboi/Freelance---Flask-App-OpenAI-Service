@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="/static/css/styles.min.css">
+  </head>
+  <body style="height: 100%;background: rgb(65,120,174);">
+    <nav class="navbar navbar-expand-lg fixed-top bg-body clean-navbar navbar-light" style="color: rgb(25,131,238);background: rgb(17,134,184);">
+      <div class="container">
+        <a class="navbar-brand logo" href="#">
+          <img src="/static/images/logo.webp" style="height: 80px;width: 80px;">
+        </a>
+        <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+          <span class="visually-hidden">Toggle navigation</span>
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navcol-1"></div>
+      </div>
+    </nav>
+    <main class="page registration-page">
+      <section class="clean-block clean-form dark" style="background: rgb(65,120,174);">
+        <div class="container">
+          <div class="block-heading">
+            <h1 style="color: rgb(221,226,231);">Login</h1>
+          </div>
+        </div>
+        <form method="POST" action="{{ url_for('login') }}" style="border-radius: 20px;">
+          <div class="mb-3" style="border-radius: 20px;">
+            <label class="form-label" for="name">Email</label>
+            <input class="form-control item" type="email" id="email" name="email" data-bs-theme="light" placeholder="example@mail.com">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="password">Mot de passe</label>
+            <input class="form-control item" type="password" id="password" name="password" data-bs-theme="light" placeholder="******************">
+          </div>
+          <div class="mb-3"></div>
+          <button class="btn btn-primary" type="submit">Se connecter</button>
+        </form>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/script.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur d'Offres d'Emploi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-button {
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .custom-button:hover {
+            background-color: #f59e0b; /* Slightly darker yellow */
+            transform: translateY(-2px); /* Small lift */
+        }
+        .custom-input {
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .custom-input:focus {
+            border-color: #f59e0b; /* Highlight color */
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4); /* Focus shadow */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <header class="text-center my-6">
+            <h1 class="text-4xl font-extrabold text-gray-800">Analyseur d'Offres d'Emploi</h1>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Section de chargement de fichier -->
+            <section class="bg-white shadow-md rounded p-6">
+                <div class="flex flex-col items-center">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Charger un Fichier PDF</h2>
+                    <input type="file" id="fileInput" class="custom-input mb-4 p-2 border rounded w-full"/>
+                    <button class="custom-button w-full mt-2 px-6 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"  onclick="uploadFile()">
+                        Charger
+                    </button>
+                </div>
+            </section>
+
+            <!-- Section de saisie manuelle -->
+            <section class="bg-white shadow-md rounded p-6">
+                <div class="flex flex-col items-center">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Saisie Manuelle</h2>
+                    <input type="text" id="inputPoste" placeholder="Poste" class="custom-input mb-2 p-2 border rounded w-full"/>
+                    <input type="number" id="inputExperience" placeholder="Nombre d'années d'expérience" class="custom-input mb-2 p-2 border rounded w-full"/>
+                    <textarea id="inputCompetences" placeholder="Compétences Requises (séparées par une virgule)" class="custom-input mb-4 p-2 border rounded w-full h-32"></textarea>
+                    <button class="custom-button w-full mt-2 px-6 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600" onclick="addManualData()">
+                        Ajouter
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Section des résultats -->
+        <section id="results" class="hidden mt-8 bg-white shadow-md rounded p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Résultats</h2>
+            <p class="mb-4">Poste: <span id="poste" class="font-semibold"></span></p>
+            <p class="mb-6">Nombre d'années d'expérience requises: <span id="nbr_annees_experience" class="font-semibold"></span></p>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Compétences Requises</h3>
+                <table id="table_competences" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-blue-500 text-white">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                Compétence
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Les lignes de compétences seront ajoutées ici par JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <script>
+             function uploadFile() {
+                var file = document.getElementById('fileInput').files[0];
+                var formData = new FormData();
+                formData.append('file', file);
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('results').classList.remove('hidden');
+                    document.getElementById('poste').textContent = data.poste;
+                    document.getElementById('nbr_annees_experience').textContent = data.nbr_annees_experience;
+
+                    // Mise à jour du tableau des compétences
+                    const tableBody = document.getElementById('table_competences').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = ''; // Réinitialiser le tableau
+                    data.competences_requises.forEach(competence => {
+                        let row = tableBody.insertRow();
+                        let cell = row.insertCell();
+                        cell.textContent = competence;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Une erreur s'est produite lors du chargement du fichier.");
+                });
+            }
+
+            function addManualData() {
+                if(validateForm()) {
+                    // Process and display the data
+                    var poste = document.getElementById('inputPoste').value;
+                    var experience = document.getElementById('inputExperience').value;
+                    var competences = document.getElementById('inputCompetences').value.split(',');
+
+                    document.getElementById('results').classList.remove('hidden');
+                    document.getElementById('poste').textContent = poste;
+                    document.getElementById('nbr_annees_experience').textContent = experience;
+
+                    const tableBody = document.getElementById('table_competences').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = '';
+                    competences.forEach(competence => {
+                        let row = tableBody.insertRow();
+                        let cell = row.insertCell();
+                        cell.textContent = competence.trim();
+                    });
+                } else {
+                    alert("Veuillez remplir correctement tous les champs.");
+                }
+            }
+
+            function validateForm() {
+                var poste = document.getElementById('inputPoste').value;
+                var experience = document.getElementById('inputExperience').value;
+                var competences = document.getElementById('inputCompetences').value;
+
+                if(poste.trim() === "" || experience.trim() === "" || competences.trim() === "") {
+                    return false;
+                }
+                // Additional specific validations can be added here
+                return true;
+            }
+        </script>
+    </div>
+</body>
+</html>
