@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Services - Sky TNT</title>
+    <title>Services</title>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
     <link rel="stylesheet" href="/static/css/styles.min.css">
@@ -40,7 +40,7 @@
                   <p class="card-text">Cette sélection nécessite une page de connexion pour que les utilisateurs puissent accéder à un tableau de bord où ils peuvent télécharger des descriptions de poste au format PDF et les faire analyser.</p>
                 </div>
                 <div>
-                  <button class="btn btn-outline-primary btn-sm" type="button">Select</button>
+                  <a href="{{ url_for('login') }}"><button class="btn btn-outline-primary btn-sm" type="button">Sélection</button></a>
                 </div>
               </div>
             </div>
@@ -54,7 +54,7 @@
                   <p class="card-text">Cette sélection est destinée au traitement des CV au format PDF, permettant d'extraire les informations pertinentes.</p>
                 </div>
                 <div>
-                  <button class="btn btn-outline-primary btn-sm" type="button">Select</button>
+                  <a href="{{ url_for('upload_and_display') }}"><button class="btn btn-outline-primary btn-sm" type="button">Sélection</button></a>
                 </div>
               </div>
             </div>
