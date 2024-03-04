@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import csv
 import PyPDF2
@@ -7,6 +7,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.secret_key = 'secretsessionencryption' # Secret key for session encryption
 
 # Créer le dossier 'uploads' s'il n'existe pas
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -17,6 +18,13 @@ users = {
     'user2@example.com': 'password123'
 }
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def check_auth(username, password):
     """This function checks if a username and password combination is valid."""
@@ -115,14 +123,15 @@ def analyser_offre_demploi(texte, openai_api_key):
     print(response.choices[0].message.content)
     return response.choices[0].message.content
 
-@app.route('/', methods=['GET'])
+@app.route('/menu', methods=['GET'])
+@login_required
 def menu():
     return render_template('menu.html')
 
 ######################## Tableau de bord utilisateur ########################
 
 # Route pour la page de connexion
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -131,14 +140,18 @@ def login():
         # You can remove the authentication check from here since it's handled by the decorator
         # Vérification simple des identifiants
         if check_auth(email, password):
-            return redirect(url_for('indexoffer'))
+            session['logged_in'] = True
+            session['username'] = email
+            return redirect(url_for('menu'))
         else:
             return "Email ou mot de passe incorrect.", 401
-
+    if 'logged_in' in session:
+        return redirect(url_for('menu', next=request.url))
     return render_template('login-v2.html')
 
 # Route pour la page principale après connexion
 @app.route('/indexoffer')
+@login_required
 def indexoffer():
     return render_template('indexoffer.html')
 
@@ -154,6 +167,7 @@ def upload():
 
 ######################## Analyse de CV ########################
 @app.route('/analyse', methods=['GET', 'POST'])
+@login_required
 def upload_and_display():
     data = []
     if request.method == 'POST':
@@ -175,6 +189,12 @@ def upload_and_display():
         print(str(e))
         pass
     return render_template('analyse_index.html', data=data)
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run()
